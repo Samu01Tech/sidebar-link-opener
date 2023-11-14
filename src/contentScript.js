@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 // Content script file will run in the context of web page.
 // With content script you can manipulate the web pages using
@@ -11,33 +11,22 @@
 // For more information on Content Scripts,
 // See https://developer.chrome.com/extensions/content_scripts
 
-// Log `title` of current active web page
-const pageTitle = document.head.getElementsByTagName('title')[0].innerHTML;
-console.log(
-  `Page title is: '${pageTitle}' - evaluated by Chrome extension's 'contentScript.js' file`
-);
+// Define a function to open all links in the sidebar.
+function openSidebarLinks() {
+  // Select all links with a specific class or other criteria that identifies them as sidebar links.
+  const sidebarLinks = document.querySelectorAll(
+    'a[href^="https://sidebar.io/out"]'
+  );
 
-// Communicate with background file by sending a message
-chrome.runtime.sendMessage(
-  {
-    type: 'GREETINGS',
-    payload: {
-      message: 'Hello, my name is Con. I am from ContentScript.',
-    },
-  },
-  response => {
-    console.log(response.message);
+  // Remove duplicate links.
+  const filteredSidebarLinks = Array.from(sidebarLinks).filter(
+    (link, index) => index % 2 === 0
+  );
+
+  // Open each link in a new tab.
+  for (const link of filteredSidebarLinks) {
+    window.open(link.href, "_blank");
   }
-);
+}
 
-// Listen for message
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'COUNT') {
-    console.log(`Current count is ${request.payload.count}`);
-  }
-
-  // Send an empty response
-  // See https://github.com/mozilla/webextension-polyfill/issues/130#issuecomment-531531890
-  sendResponse({});
-  return true;
-});
+openSidebarLinks();
